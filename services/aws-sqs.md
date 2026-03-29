@@ -305,7 +305,385 @@ The lifecycle of a message in SQS follows several stages.
 If the consumer fails to delete the message, it becomes visible again for other consumers.
 
 
-# :one::three:
+# :one::three:  What is an SQS Access Policy?
 
-### We will implement a simple architecture:
+An SQS Access Policy is a JSON-based permission document that defines who is allowed to perform which actions on an SQS queue.
+
+It works similarly to AWS IAM policies, but it is attached directly to the queue itself, making it a resource-based policy.
+
+In simple terms:
+
+> An SQS access policy controls which AWS users, roles, accounts, or services can send messages to the queue, receive messages from the queue, or manage the queue.
+
+
+This policy helps enforce security and controlled access to the queue.
+
+### For example, you may want:
+
+- Only a specific application server to send messages.
+- Only a worker service to read messages.
+- Allow SNS topic to publish messages.
+- Allow Lambda function to consume messages.
+
+
+All of these are controlled using SQS access policies.
+
+# :one::four: Why Access Policies Are Needed?
+
+In real production systems, queues are often accessed by multiple services.
+
+Example architecture:
+
+```js
+Order Service → SQS → Email Worker
+                     ↓
+                Analytics Worker
+
+```
+
+
+### Without access control:
+
+- Anyone with AWS credentials could access the queue.
+- Unauthorized services might read or send messages.
+- Security risks increase.
+
+### Using access policies allows you to:
+
+- Restrict who can send messages
+- Restrict who can consume messages
+- Allow only specific AWS services
+- Allow cross-account access
+
+
+# :one::five: Types of Permissions in SQS
+
+Common SQS actions that can be controlled through policies include:
+
+| Action                   | Description               |
+| ------------------------ | ------------------------- |
+| `sqs:SendMessage`        | Send message to queue     |
+| `sqs:ReceiveMessage`     | Retrieve messages         |
+| `sqs:DeleteMessage`      | Delete processed messages |
+| `sqs:GetQueueAttributes` | Read queue configuration  |
+| `sqs:SetQueueAttributes` | Modify queue settings     |
+| `sqs:PurgeQueue`         | Delete all messages       |
+
+
+# :one::six:  Structure of an SQS Access Policy
+
+An SQS access policy is written in JSON format and contains several key fields.
+
+Example structure:
+
+```js
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "sqs:SendMessage",
+      "Resource": "QUEUE_ARN"
+    }
+  ]
+}
+
+```
+Explanation:
+
+| Field     | Meaning                  |
+| --------- | ------------------------ |
+| Version   | Policy language version  |
+| Statement | List of permission rules |
+| Effect    | Allow or Deny            |
+| Principal | Who gets permission      |
+| Action    | Allowed operations       |
+| Resource  | Queue ARN                |
+
+
+
+# Example :one: Allow Only One IAM User to send Message
+
+Suppose you want only a specific IAM user to send messages.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowSendMessage",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::123456789012:user/backend-api"
+      },
+      "Action": "sqs:SendMessage",
+      "Resource": "arn:aws:sqs:ap-south-1:123456789012:email-queue"
+    }
+  ]
+}
+```
+
+Explanation:
+
+- Only the IAM user backend-api can send messages.
+- Other users cannot send messages.
+
+
+# Example :two: Allow Workers to Receive Messages
+
+Suppose you have worker servers that process queue jobs.
+
+Policy example:
+
+```js
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowWorkersToConsume",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::123456789012:role/email-worker-role"
+      },
+      "Action": [
+        "sqs:ReceiveMessage",
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes"
+      ],
+      "Resource": "arn:aws:sqs:ap-south-1:123456789012:email-queue"
+    }
+  ]
+}
+
+```
+Now:
+
+- Worker role can receive and delete messages.
+- Others cannot consume messages.
+
+
+# Example :three: Allow SNS Topic to Send Messages to SQS
+
+A very common architecture is:
+
+```js
+SNS Topic → SQS Queue
+```
+
+This allows multiple services to publish events.
+
+
+```js
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowSNSPublish",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "sns.amazonaws.com"
+      },
+      "Action": "sqs:SendMessage",
+      "Resource": "arn:aws:sqs:ap-south-1:123456789012:email-queue",
+      "Condition": {
+        "ArnEquals": {
+          "aws:SourceArn": "arn:aws:sns:ap-south-1:123456789012:order-topic"
+        }
+      }
+    }
+  ]
+}
+
+```
+
+# :one::seven: We will implement a simple architecture:
+
+```js
+Client → Node API (Producer) → AWS SQS → Worker Service (Consumer)
+```
+
+Example Use Case:
+
+
+```js
+User Signup → Queue → Email Worker sends welcome email
+```
+
+
+# Project Structure (Production Grade)
+
+### A clean architecture keeps SQS logic separated from business logic.
+
+```js
+sqs-nodejs-example
+│
+├── src
+│   ├── config
+│   │   └── aws.js
+│   │
+│   ├── queues
+│   │   ├── producer.js
+│   │   └── consumer.js
+│   │
+│   ├── services
+│   │   └── emailService.js
+│   │
+│   ├── workers
+│   │   └── emailWorker.js
+│   │
+│   ├── routes
+│   │   └── userRoutes.js
+│   │
+│   ├── controllers
+│   │   └── userController.js
+│   │
+│   ├── utils
+│   │   └── logger.js
+│   │
+│   └── app.js
+│
+├── worker.js
+├── package.json
+└── .env
+```
+
+## This structure follows common Node.js production patterns:
+
+- Config
+- Services
+- Controllers
+- Workers
+- Queues
+
+
+
+## Install Required Packages & AWS SDK
+
+```js
+npm init -y
+npm install express dotenv @aws-sdk/client-sqs
+```
+
+## Environment Variables
+
+`.env`
+
+```js
+PORT=3000
+AWS_REGION=ap-south-1
+AWS_ACCESS_KEY=your_access_key
+AWS_SECRET_KEY=your_secret_key
+
+SQS_QUEUE_URL=https://sqs.ap-south-1.amazonaws.com/123456789012/email-queue
+
+```
+## AWS SQS Configuration
+
+``src/config/aws.js``
+
+```js
+import { SQSClient } from "@aws-sdk/client-sqs";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+export const sqsClient = new SQSClient({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY
+  }
+});
+
+```
+
+This creates a reusable SQS client instance.
+
+## Logger Utility
+Production apps should never rely only on ``console.log``.
+
+``src/utils/logger.js`` 
+
+```js
+export const logger = {
+  info: (message, data = null) => {
+    console.log(`[INFO] ${message}`, data || "");
+  },
+
+  error: (message, error = null) => {
+    console.error(`[ERROR] ${message}`, error || "");
+  }
+};
+```
+
+In real production systems, you'd use:
+
+```js
+winston
+pino
+```
+
+# SQS Producer (Send Messages)
+
+``src/queues/producer.js``
+
+
+```js
+import { SendMessageCommand } from "@aws-sdk/client-sqs";
+import { sqsClient } from "../config/aws.js";
+import { logger } from "../utils/logger.js";
+
+const QUEUE_URL = process.env.SQS_QUEUE_URL;
+
+export const sendMessageToQueue = async (payload) => {
+  try {
+
+    const params = {
+      QueueUrl: QUEUE_URL,
+      MessageBody: JSON.stringify(payload)
+    };
+
+    const command = new SendMessageCommand(params);
+
+    const response = await sqsClient.send(command);
+
+    logger.info("Message sent to SQS", response.MessageId);
+
+  } catch (error) {
+    logger.error("Failed to send message to SQS", error);
+    throw error;
+  }
+};
+```
+
+This function acts as a generic queue publisher.
+
+## Business Service Example
+
+``src/services/emailService.js``
+
+```js
+import { logger } from "../utils/logger.js";
+
+export const sendWelcomeEmail = async (email, name) => {
+
+  logger.info(`Sending welcome email to ${email}`);
+
+  // simulate email sending
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
+  logger.info(`Email sent successfully to ${email}`);
+
+};
+
+```
+
+In production this could use:
+
+```js
+AWS SES
+SendGrid
+Mailgun
+```
 
