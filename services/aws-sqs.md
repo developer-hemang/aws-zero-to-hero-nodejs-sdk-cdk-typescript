@@ -253,7 +253,7 @@ Maximum retention period:
 
 If a message is not consumed within this time, it is automatically deleted.
 
-# :ten: Polling
+# :one: :zero: Polling
 
 Consumers retrieve messages from SQS by polling the queue.
 
@@ -275,7 +275,7 @@ WaitTimeSeconds = 20
 This reduces unnecessary API calls and improves efficiency.
 
 
-## :eleven: Dead Letter Queue (DLQ)
+## :one::one: Dead Letter Queue (DLQ)
 
 A Dead Letter Queue is a special queue used to store messages that cannot be successfully processed.
 
