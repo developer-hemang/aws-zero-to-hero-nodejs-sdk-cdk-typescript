@@ -659,7 +659,7 @@ export const sendMessageToQueue = async (payload) => {
 
 This function acts as a generic queue publisher.
 
-## Business Service Example
+# Business Service Example
 
 ``src/services/emailService.js``
 
@@ -679,11 +679,58 @@ export const sendWelcomeEmail = async (email, name) => {
 
 ```
 
-In production this could use:
+## In production this could use:
 
 ```js
 AWS SES
 SendGrid
 Mailgun
 ```
+
+# Controller Layer
+
+``src/controllers/userController.js``
+
+```js
+
+import { sendMessageToQueue } from "../queues/producer.js";
+import { logger } from "../utils/logger.js";
+
+export const registerUser = async (req, res) => {
+
+  try {
+
+    const { name, email } = req.body;
+
+    const message = {
+      type: "SEND_WELCOME_EMAIL",
+      data: {
+        name,
+        email
+      }
+    };
+
+    await sendMessageToQueue(message);
+
+    res.status(200).json({
+      message: "User registered successfully. Email will be sent asynchronously."
+    });
+
+  } catch (error) {
+
+    logger.error("User registration failed", error);
+
+    res.status(500).json({
+      error: "Internal Server Error"
+    });
+
+  }
+
+};
+
+```
+
+Notice:
+
+
 
