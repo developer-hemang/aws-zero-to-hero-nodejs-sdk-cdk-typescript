@@ -289,7 +289,7 @@ Example scenario:
 This helps developers analyze failed messages without losing them.
 
 
-# :twelve: SQS Message Lifecycle
+# :one::two: SQS Message Lifecycle
 
 The lifecycle of a message in SQS follows several stages.
 
@@ -305,6 +305,6 @@ The lifecycle of a message in SQS follows several stages.
 If the consumer fails to delete the message, it becomes visible again for other consumers.
 
 
-# :thirteen:
+# :one::three:
 
 ### We will implement a simple architecture:
