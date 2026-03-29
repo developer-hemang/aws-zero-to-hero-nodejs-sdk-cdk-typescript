@@ -18,7 +18,7 @@ In simple words:
 AWS SQS is a service that temporarily stores messages in a queue so that different services of an application can communicate with each other asynchronously and reliably.
 
 
-# 2. Why AWS SQS is Needed
+# :two: . Why AWS SQS is Needed
 
 In modern systems such as microservices architectures, applications often consist of multiple services performing different tasks. For example:
 
@@ -64,4 +64,4 @@ benifits
 - Independent services
 
 
-# 3. Real World Analogy
+# :three: . Real World Analogy
