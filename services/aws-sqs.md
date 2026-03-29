@@ -305,7 +305,7 @@ The lifecycle of a message in SQS follows several stages.
 If the consumer fails to delete the message, it becomes visible again for other consumers.
 
 
-# :one three:
+# :one::three:
 
 ### We will implement a simple architecture:
 
