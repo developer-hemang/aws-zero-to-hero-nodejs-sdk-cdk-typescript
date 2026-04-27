@@ -119,7 +119,65 @@ A **publisher** is any application or service that sends messages to an SNS topi
 Backend Service → SNS Topic
 ```
 
+🎯 Example
+- Order service publishes: "Order Placed"
+- Stock worker publishes: "Reliance up 2%"
+
 ---
+
+## 📡 Topic
+
+A topic is a logical communication channel where messages are sent by publishers and distributed to subscribers.
+
+🔹 Key Responsibilities
+    - Receives messages from publishers
+    - Distributes messages to all subscribers
+    - Handles message filtering and delivery
+
+
+🔹 Types of Topics
+    - Standard Topic → High throughput, best-effort ordering
+    - FIFO Topic → Ordered + deduplicated delivery
+
+🔹 Important Concepts
+    - Each topic has a unique ARN
+    - Supports message filtering
+    - Enables fan-out architecture
+
+```js
+Publisher → Topic → Multiple Subscribers
+```
+
+## 📥 Subscriber
+
+A subscriber is any endpoint or service that receives messages from an SNS topic.
+
+🔹 What can be a subscriber?
+    - SQS Queue (most common in production)
+    - AWS Lambda (serverless processing)
+    - HTTP/HTTPS endpoints (webhooks, APIs)
+    - Email (notifications)
+    - SMS (alerts)
+
+🔹 How it works
+    - Subscriber is registered (subscribed) to a topic
+    - SNS automatically pushes messages to it
+
+```js 
+SNS Topic → SQS / Lambda / Email / API
+```
+🎯 Example
+    - Email service receives notification
+    - Lambda processes event
+    - SQS queues message for background processing
+
+🧠 Summary Flow
+    ```js
+    Publisher → SNS Topic → Subscribers
+    ```
+    - Publisher sends message
+    - Topic distributes it
+    - Subscribers consume it
 
 # 7️⃣ Types of SNS Topics
 
