@@ -116,7 +116,8 @@ A **publisher** is any application or service that sends messages to an SNS topi
 - Sends message to a specific **Topic ARN**
 
 ```text
-Backend Service → SNS Topic```
+Backend Service → SNS Topic
+```
 
 ---
 
