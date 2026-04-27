@@ -17,5 +17,5 @@ Explore AWS services documented in this repository.
 - 📬 **[Amazon SQS — Simple Queue Service](./services/aws-sqs.md)**  
   A fully managed message queue service that enables applications and microservices to communicate asynchronously. It helps decouple system components, improve scalability, and reliably process background jobs and distributed workloads.
 
-  - 📡 **[Amazon SNS — Simple Notification Service](./services/aws-sns.md)**  
+- 📡 **[Amazon SNS — Simple Notification Service](./services/aws-sns.md)**  
   A fully managed publish-subscribe messaging service that enables applications to send messages to multiple subscribers in real time. It helps build event-driven architectures, broadcast notifications, and decouple microservices using one-to-many communication.
