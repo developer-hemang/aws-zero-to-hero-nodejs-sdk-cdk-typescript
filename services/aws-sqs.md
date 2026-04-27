@@ -69,7 +69,7 @@ benifits
 - Easy scaling
 - Independent services
 
-# :Four: Real World Analogy
+# :four: Real World Analogy
 
 🧑‍🍳 A good way to understand SQS is by comparing it to a restaurant order system.
 
