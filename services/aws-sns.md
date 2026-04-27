@@ -315,6 +315,4 @@ SNS can send failed messages to DLQ via SQS.
 
 👉 Combine SNS + SQS + Lambda for real-world architecture
 
-(Add GitHub link)
-
 
