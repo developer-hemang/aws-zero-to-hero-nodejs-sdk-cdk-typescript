@@ -100,27 +100,23 @@ Modern systems need:
 
 # 5️⃣ Core Components
 
-## 📤 Publisher
+## 📤 Publisher (Producer)
 
-* Sends message
-* Example: API, Order service
+A **publisher** is any application or service that sends messages to an SNS topic.
 
-## 📡 Topic
+### 🔹 What can be a publisher?
+- Node.js / Java / Python backend services
+- Microservices (Order service, Payment service, etc.)
+- AWS Lambda functions
+- Cron jobs / background workers
+- Third-party systems via API
 
-* Logical channel
-* Messages are published here
-
-## 📥 Subscriber
-
-* Receives messages
-
----
-
-# 6️⃣ SNS Flow
+### 🔹 How it works
+- Publisher calls the **SNS Publish API**
+- Sends message to a specific **Topic ARN**
 
 ```text
-Publisher → SNS Topic → Subscribers
-```
+Backend Service → SNS Topic```
 
 ---
 
