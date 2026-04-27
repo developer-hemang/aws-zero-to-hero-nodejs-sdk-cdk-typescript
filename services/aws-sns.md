@@ -166,18 +166,18 @@ A subscriber is any endpoint or service that receives messages from an SNS topic
 ```js 
 SNS Topic → SQS / Lambda / Email / API
 ```
-🎯 Example
-    - Email service receives notification
-    - Lambda processes event
-    - SQS queues message for background processing
+### 🎯 Example
+- Email service receives notification
+- Lambda processes event
+- SQS queues message for background processing
 
-🧠 Summary Flow
-    ```js
+### 🧠 Summary Flow
+```js
     Publisher → SNS Topic → Subscribers
-    ```
-    - Publisher sends message
-    - Topic distributes it
-    - Subscribers consume it
+```
+- Publisher sends message
+- Topic distributes it
+- Subscribers consume it
 
 # 7️⃣ Types of SNS Topics
 
