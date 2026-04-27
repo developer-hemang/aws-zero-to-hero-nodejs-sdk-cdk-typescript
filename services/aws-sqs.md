@@ -1,3 +1,12 @@
+
+🔗 Related Project
+
+👉 Implementation Repo:
+
+Async Stock Analyzer (SQS + Lambda)
+
+
+
 # :one: What is Messaging and Why we need it ?
 
 Messaging is a communication approach where different parts of a system exchange information by sending messages through an intermediary instead of calling each other directly. In the context of AWS SQS, messaging allows a producer to send a message to a queue, and a consumer to process it 
@@ -240,7 +249,7 @@ This prevents multiple consumers from processing the same message simultaneously
 
 1. Worker retrieves a message.
 2. Visibility timeout is set to 30 seconds.
-3. Other workers cannot see this message during that time.
+3. Other workers can not see this message during that time.
 
 
 If the worker successfully processes the message, it deletes the message from the queue.
@@ -290,7 +299,7 @@ This reduces unnecessary API calls and improves efficiency.
 
 # :one::two: Dead Letter Queue (DLQ)
 
-A Dead Letter Queue is a special queue used to store messages that cannot be successfully processed.
+A Dead Letter Queue is a special queue used to store messages that can not be successfully processed.
 
 Example scenario:
 
