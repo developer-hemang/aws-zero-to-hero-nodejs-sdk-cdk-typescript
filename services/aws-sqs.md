@@ -1,12 +1,3 @@
-
-🔗 Related Project
-
-👉 Implementation Repo:
-
-Async Stock Analyzer (SQS + Lambda)
-
-
-
 # :one: What is Messaging and Why we need it ?
 
 Messaging is a communication approach where different parts of a system exchange information by sending messages through an intermediary instead of calling each other directly. In the context of AWS SQS, messaging allows a producer to send a message to a queue, and a consumer to process it 
@@ -194,7 +185,137 @@ Example queue name:
 order-processing.fifo
 ```
 
+# SQS FIFO Features: Deduplication & Message Grouping
 
+## :one: Deduplication (Duplicate Message Prevention)
+
+Deduplication ensures that the same message is not processed more than once, even if it is sent multiple times due to retries or network issues.
+
+### 🔹 Why it is needed
+In distributed systems, producers may retry sending messages:
+
+```js
+API → Send → Timeout → Retry → Duplicate message sent
+```
+
+### Without deduplication:
+
+❌ Duplicate orders
+❌ Double payments
+❌ Data inconsistency
+
+How it works
+
+Each message in a FIFO queue includes a:
+
+```js
+MessageDeduplicationId
+```
+
+If a message with the same ID is sent within a 5-minute deduplication window,
+👉 SQS accepts but does not deliver the duplicate
+
+Example
+
+```js
+{
+  "orderId": 101
+}
+
+MessageDeduplicationId = "order-101"
+
+
+Send #1 → Processed ✅  
+Send #2 (same ID within 5 min) → Ignored ❌  
+```
+
+### 🔹Types of Deduplication
+#### :one:  Explicit Deduplication (Recommended)
+You provide the ID manually:
+
+```js
+MessageDeduplicationId: "order-101"
+```
+
+### :two: Content-Based Deduplication
+
+- SQS generates a hash of the message body
+- Works only if the message body is identical
+
+>> Deduplication ensures exactly-once processing behavior in FIFO queues
+
+
+## :two: Message Grouping (Ordered Processing)
+
+Message grouping ensures that messages are processed in strict order within a group, while allowing parallel processing across different groups.
+
+
+### Why it is needed ?
+
+Not all data needs global ordering. Often, ordering is required only within a specific context.
+
+Example:
+- Orders of User A → must be in order
+- Orders of User B → independent
+
+
+### 🔹 How it works
+Each message includes:
+
+```js
+MessageGroupId
+```
+
+SQS guarantees:
+
+✅ Messages in the same group → processed in order (one-by-one)
+❌ Messages in different groups → processed in parallel
+
+
+### 🔹 Example
+
+```js
+
+Group A → M1 → M2 → M3  
+Group B → M1 → M2  
+
+```
+
+### Processing:
+
+```js
+Worker 1 → Group A (sequential)  
+Worker 2 → Group B (parallel)  
+```
+
+### 🔹 Real-World Example
+
+Stock Orders
+
+```js
+User A → BUY → SELL → MODIFY  
+User B → BUY → SELL  
+
+```
+
+Use:
+
+```js
+MessageGroupId = userId
+```
+
+👉 Ensures:
+
+User A’s actions are processed in correct order
+User B runs independently in parallel
+
+>> Message grouping provides controlled ordering with scalability
+
+## Combined Understanding
+
+```js
+FIFO Queue = Deduplication + Message Grouping
+```
 
 # :seven: SQS Message
 
@@ -520,6 +641,9 @@ This allows multiple services to publish events.
 ```
 
 
+
+
+
 # :one::five: Performance & Limits 📊
 -Standard Queue
   - Nearly unlimited TPS
@@ -703,3 +827,10 @@ Multiple workers can scale horizontally.
 # Final Interview Summary
 
 In production systems, AWS SQS is typically used to decouple APIs from background processing tasks. Instead of performing heavy operations like sending emails, generating reports, or processing files inside the request lifecycle, the API pushes a message to an SQS queue. Dedicated worker services then consume these messages asynchronously and process them reliably. This architecture improves scalability, fault tolerance, and overall system performance.
+
+
+# 🔗 Related Project
+
+👉 Implementation Repo:
+
+## Async Stock Analyzer (SQS + Lambda)
