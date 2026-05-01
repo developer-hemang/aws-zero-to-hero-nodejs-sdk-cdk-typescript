@@ -98,6 +98,7 @@ if (paymentSuccess) {
   sendMetric("PaymentFailure", 1);
 }
 
+```
 
 ## Example How to PUT custom Metrics Using AWS CLI
 
