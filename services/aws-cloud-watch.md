@@ -113,7 +113,7 @@ aws cloudwatch put-metric-data \
 
 ```
 
-## Example How to PUT custom Metrics Using AWS CLI
+## Example How to GET custom Metrics Using AWS CLI
 
 ```bash
 aws cloudwatch get-metric-statistics \
@@ -125,7 +125,7 @@ aws cloudwatch get-metric-statistics \
   --period 300 \
   --statistics Sum
 ```
-
+### “CloudWatch accepts metric data points up to 2 weeks in the past and 2 hours in the future”
 
 # 🔍 1. How do you know “Is Lambda failing?”
 
@@ -214,6 +214,6 @@ Also check:
     - Duration > 2 seconds for 5 mins
 
 
-# “CloudWatch accepts metric data points up to 2 weeks in the past and 2 hours in the future”
+
 
 
