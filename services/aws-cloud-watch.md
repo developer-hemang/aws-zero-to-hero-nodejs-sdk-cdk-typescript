@@ -4,7 +4,7 @@ CloudWatch Metrics are numerical time-series data points collected and stored by
 
 👉 In simple terms:
 
->> Metrics = numbers over time (e.g., CPU usage, error count, request count)
+> Metrics = numbers over time (e.g., CPU usage, error count, request count)
 
 ## 🔍 Examples of Default AWS Metrics
 
@@ -22,7 +22,7 @@ CloudWatch Metrics are numerical time-series data points collected and stored by
 
 ## 🎯 Use of CloudWatch Metrics
 
-- 1. Monitoring system health
+## 1. Monitoring system health
  - Is your Lambda failing?
  - Is latency increasing?
 
@@ -40,4 +40,4 @@ CloudWatch Metrics are numerical time-series data points collected and stored by
 
 ### 👉 Interview one-liner:
 
->> “CloudWatch metrics help monitor system performance and enable alerting and automated actions based on thresholds.”
+> “CloudWatch metrics help monitor system performance and enable alerting and automated actions based on thresholds.”
