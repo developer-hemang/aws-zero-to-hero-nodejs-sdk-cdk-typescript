@@ -16,7 +16,7 @@ CloudWatch Metrics are numerical time-series data points collected and stored by
     - Throttles
 - EC2:
     - CPUUtilization
-    - API Gateway:
+- API Gateway:
     - Latency
     - 4XX / 5XX errors
 
