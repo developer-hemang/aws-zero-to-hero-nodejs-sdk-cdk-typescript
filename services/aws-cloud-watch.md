@@ -9,17 +9,16 @@ CloudWatch Metrics are numerical time-series data points collected and stored by
 ## 🔍 Examples of Default AWS Metrics
 
 ## AWS automatically provides these:
-
 - Lambda:
- - Invocations
- - Errors
- - Duration
- - Throttles
+    - Invocations
+    - Errors
+    - Duration
+    - Throttles
 - EC2:
- - CPUUtilization
- - API Gateway:
- - Latency
- - 4XX / 5XX errors
+    - CPUUtilization
+    - API Gateway:
+    - Latency
+    - 4XX / 5XX errors
 
 ## 🎯 Use of CloudWatch Metrics
 
