@@ -100,6 +100,66 @@ if (paymentSuccess) {
 
 ```
 
+## Example How TO PUT Custom MEtrics Using AWS NOde JS SDK
+
+```js
+import { CloudWatchClient, PutMetricDataCommand } from "@aws-sdk/client-cloudwatch";
+
+const cw = new CloudWatchClient({ region: "ap-south-1" });
+
+export async function putMetric() {
+  const command = new PutMetricDataCommand({
+    Namespace: "MyApp/Metrics",
+    MetricData: [
+      {
+        MetricName: "LoginSuccess",
+        Value: 1,
+        Unit: "Count",
+        Dimensions: [
+          { Name: "Service", Value: "Auth" }
+        ]
+      }
+    ]
+  });
+
+  await cw.send(command);
+  console.log("Metric sent");
+}
+
+// call
+putMetric();
+
+```
+
+## Example How to Get Custom Metrics Using AWS NodeJS SDK
+
+
+```js
+import { CloudWatchClient, GetMetricStatisticsCommand } from "@aws-sdk/client-cloudwatch";
+
+const cw = new CloudWatchClient({ region: "ap-south-1" });
+
+export async function getMetrics() {
+  const command = new GetMetricStatisticsCommand({
+    Namespace: "MyApp/Metrics",
+    MetricName: "LoginSuccess",
+    Dimensions: [
+      { Name: "Service", Value: "Auth" }
+    ],
+    StartTime: new Date(Date.now() - 60 * 60 * 1000), // last 1 hour
+    EndTime: new Date(),
+    Period: 300, // 5 minutes
+    Statistics: ["Sum"]
+  });
+
+  const data = await cw.send(command);
+  console.log(data.Datapoints);
+}
+
+// call
+getMetrics();
+```
+
 ## Example How to PUT custom Metrics Using AWS CLI
 
 ```bash
@@ -212,6 +272,7 @@ Also check:
 # 🚨 Alarm Example
 - Condition:
     - Duration > 2 seconds for 5 mins
+
 
 
 
