@@ -450,3 +450,67 @@ Daily at 9 AM → EventBridge triggers Lambda → Lambda processes report
 - Invocation is asynchronous
 - EventBridge handles retry (up to 24 hours)
 - Can configure DLQ (SQS)
+
+
+# Lamda + S3 Event Notification Set Up Step By Step
+
+When a file is uploaded to S3, it automatically triggers a Lambda function.
+
+### Architecture Flow
+
+S3 (file upload) → Event Notification → Lambda → Process file
+
+### Step-by-Step Setup
+## 1. Create S3 Bucket
+- Go to S3 → Create bucket
+- Example: my-upload-bucket
+
+## 2. Create Lambda Function
+- Go to Lambda → Create function
+
+### Example (Node.js)
+
+```js
+exports.handler = async (event) => {
+  console.log("S3 Event:", JSON.stringify(event));
+
+  const record = event.Records[0];
+  const bucket = record.s3.bucket.name;
+  const key = record.s3.object.key;
+
+  console.log(`File uploaded: ${key} in bucket: ${bucket}`);
+};
+
+```
+
+## 3. Add Permission (Important)
+- When you connect via S3 UI → permission is auto-added
+- Otherwise, allow S3 to invoke Lambda
+
+
+## 4. Configure S3 Event Notification
+- Go to S3 bucket → Properties
+- Scroll to Event notifications
+- Click Create event notification
+
+### Configure:
+- Event type → PUT (Object Created)
+- Destination → Lambda function
+- Select your Lambda
+
+## 5. Test
+- Upload a file to S3
+- Go to CloudWatch Logs
+- You’ll see file details printed
+
+
+## Important Points (Interview)
+- Invocation is asynchronous
+- Lambda retries on failure (3 attempts)
+- Can configure DLQ (SQS/SNS)
+- Make function idempotent (to avoid duplicates)
+
+
+## Real-Life Example
+
+> User uploads image → Lambda resizes image → stores processed file
