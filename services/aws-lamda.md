@@ -791,6 +791,7 @@ Used for:
 | Changes Every Request | Yes            | Yes                  |
 
 
+------------
 
 # AWS Lambda Destinations
 
@@ -1030,3 +1031,150 @@ Asynchronous invocation
 
 ## 4. Save Configuration
 AWS automatically handles routing.
+
+
+-----
+
+# Lamda Environment Variables 
+
+### Defination 
+Environment Variables in AWS Lambda are key-value pairs used to store configuration data separately from application code.
+
+#### They help make Lambda functions:
+
+- Configurable
+- Reusable
+- Secure
+- Easy to manage across environments
+
+
+## Why We Use Environment Variables
+
+Instead of hardcoding values inside code like:
+
+```js
+const DB_HOST = "production-db.amazonaws.com";
+```
+
+we store them in Lambda configuration.
+
+This helps:
+- Avoid code changes for configuration updates
+- Support multiple environments
+- Improve security and maintainability
+
+## Common Use Cases
+
+| Usage            | Example         |
+| ---------------- | --------------- |
+| Database URL     | DB_HOST         |
+| API Keys         | PAYMENT_API_KEY |
+| Environment Name | NODE_ENV        |
+| Bucket Name      | S3_BUCKET       |
+| Feature Flags    | ENABLE_CACHE    |
+
+
+## Real-Life Example
+
+Scenario
+
+Same Lambda deployed in:
+- Development
+- Staging
+- Production
+
+Instead of changing code:
+
+Use different environment variables
+
+Example:
+
+```bash
+DB_NAME=dev_db
+```
+Production
+
+```bash
+DB_NAME=prod_db
+```
+
+Same code works everywhere.
+
+
+## How to Add Environment Variables
+
+Using AWS Console
+
+Steps
+1. Open Lambda Function
+2. Go to:
+
+```bash
+Configuration → Environment variables
+```
+
+3. Click:
+
+```bash
+Edit
+```
+
+4. Add:
+- Key 
+- Value
+
+Example: 
+
+| Key      | Value                    |
+| -------- | ------------------------ |
+| DB_HOST  | mysql-prod.amazonaws.com |
+| NODE_ENV | production               |
+
+5. Save
+
+## How to Access Environment Variables in Node.js
+In Node.js Lambda:
+
+```js
+process.env.VARIABLE_NAME
+```
+
+## Full Node.js Lambda Example
+
+Environment Variables
+
+| Key      | Value        |
+| -------- | ------------ |
+| APP_NAME | OrderService |
+| NODE_ENV | production   |
+
+
+Lambda Code
+
+```js
+exports.handler = async (event) => {
+
+    const appName = process.env.APP_NAME;
+    const environment = process.env.NODE_ENV;
+
+    console.log("Application:", appName);
+    console.log("Environment:", environment);
+
+    return {
+        statusCode: 200,
+        body: JSON.stringify({
+            message: `Running ${appName} in ${environment}`
+        })
+    };
+};
+
+```
+
+
+Output Example
+
+```json
+{
+  "message": "Running OrderService in production"
+}
+```
