@@ -789,3 +789,244 @@ Used for:
 | Comes From            | Trigger source | AWS Lambda           |
 | Used For              | Business logic | Monitoring/debugging |
 | Changes Every Request | Yes            | Yes                  |
+
+
+
+# AWS Lambda Destinations
+
+### Defination 
+
+AWS Lambda Destinations is a feature that sends the result of an asynchronous Lambda invocation to another AWS service after execution completes.
+
+It can send data:
+- On successful execution
+- On failed execution
+
+
+Why Lambda Destinations Are Needed
+
+Normally in asynchronous invocation:
+- Caller does not wait for response
+- Result is not automatically tracked
+
+Without destinations:
+- Hard to know what happened after execution
+- Need custom error-handling logic
+
+Lambda Destinations solve this problem.
+
+
+### How It Works
+
+Flow
+
+Event Source → Lambda → Destination
+
+After Lambda execution:
+- Success → Send result to configured success destination
+- Failure → Send error details to configured failure destination
+
+Important Point
+
+Lambda Destinations work only with:
+
+✔️ Asynchronous invocations
+
+Examples:
+- S3
+- SNS
+- EventBridge
+
+❌ Not for synchronous invocations like:
+- API Gateway
+- ALB
+
+Supported Destinations
+
+| Destination | Usage                       |
+| ----------- | --------------------------- |
+| SQS         | Queue failed/success events |
+| SNS         | Send notifications          |
+| Lambda      | Trigger another Lambda      |
+| EventBridge | Trigger workflows/events    |
+
+
+Success Destination Example
+
+Real-Life Scenario
+
+## Image Processing System
+- User uploads image to S3
+- S3 triggers Lambda
+- Lambda resizes image successfully
+- Lambda sends success event to EventBridge
+- EventBridge triggers another workflow
+
+Flow
+S3 → Lambda → EventBridge
+
+
+Failure Destination Example
+
+Real-Life Scenario
+
+Payment Processing
+- Payment event triggers Lambda
+- Lambda fails due to DB issue
+- Failed event sent to SQS
+- Support/retry system processes failed events late
+
+Flow
+SNS → Lambda → SQS (Failure Destination)
+
+# What Data Is Sent to Destination
+
+Lambda sends:
+
+- Original event
+- Response payload
+- Error details
+- Request context
+- Execution metadata
+
+
+# Example Success Payload
+
+```json
+{
+  "version": "1.0",
+  "timestamp": "2026-05-08T10:00:00Z",
+  "requestContext": {
+    "requestId": "abc-123",
+    "functionArn": "arn:aws:lambda:ap-south-1:123456789:function:imageProcessor",
+    "condition": "Success"
+  },
+  "requestPayload": {
+    "fileName": "photo.jpg"
+  },
+  "responsePayload": {
+    "message": "Image resized successfully"
+  }
+}
+
+```
+
+# Example Failure Payload
+
+```json
+{
+  "version": "1.0",
+  "timestamp": "2026-05-08T10:00:00Z",
+  "requestContext": {
+    "requestId": "xyz-789",
+    "condition": "RetriesExhausted"
+  },
+  "requestPayload": {
+    "orderId": 1001
+  },
+  "responseContext": {
+    "functionError": "Unhandled"
+  },
+  "responsePayload": {
+    "errorMessage": "Database connection failed"
+  }
+}
+```
+
+# Benefits of Lambda Destinations
+
+## 1. Better Error Handling
+Automatically capture failed executions.
+
+
+## 2. Workflow Chaining
+Trigger another Lambda or EventBridge after success.
+
+
+## 3. Easier Monitoring
+
+Track success/failure events centrally.
+
+## 4. No Custom Retry Logic
+AWS handles routing automatically.
+
+
+## 5. Event-Driven Architecture
+
+Helps build loosely coupled systems.
+
+
+# Success vs Failure Destinations
+
+| Type      | When Triggered             |
+| --------- | -------------------------- |
+| OnSuccess | After successful execution |
+| OnFailure | After all retries fail     |
+
+
+
+# Retry Behavior
+
+For async Lambda:
+
+- Lambda retries failed execution
+- If retries exhausted:
+  - Failure destination triggered
+
+
+  # Lambda Destinations vs DLQ
+
+  | Feature           | DLQ                 | Lambda Destination         |
+| ----------------- | ------------------- | -------------------------- |
+| Works On          | Failure only        | Success + Failure          |
+| Data Sent         | Original event only | Full execution details     |
+| Supported Targets | SQS/SNS only        | SQS/SNS/Lambda/EventBridge |
+| More Detailed     | No                  | Yes                        |
+
+
+# When to Use DLQ vs Destination
+
+### Use DLQ:
+- Simple failure storage
+### Use Destination:
+- Advanced workflows
+- Monitoring
+- Success/failure tracking
+- Chaining services
+
+
+## Example Architecture
+
+### Order Processing System
+
+Success Flow
+API → SNS → Lambda → EventBridge → Billing Service
+
+Failure Flow
+API → SNS → Lambda → SQS DLQ
+
+
+# Simple Setup Steps
+
+## 1. Open Lambda Function
+Go To: 
+
+```js
+Lambda → Configuration → Destinations
+```
+
+## 2. Select Async Invocation
+Choose:
+
+```bash
+Asynchronous invocation
+```
+
+## 3. Configure Destination
+### On Success
+- EventBridge / SNS / Lambda / SQS
+### On Failure
+- SQS / SNS
+
+## 4. Save Configuration
+AWS automatically handles routing.
