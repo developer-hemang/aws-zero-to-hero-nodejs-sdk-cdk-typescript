@@ -514,3 +514,278 @@ exports.handler = async (event) => {
 ## Real-Life Example
 
 > User uploads image → Lambda resizes image → stores processed file
+
+# what is Event Mapping In Lamda 
+
+Event Source Mapping is a Lambda feature that automatically polls records/messages from a service and invokes the Lambda function.
+
+👉 Lambda continuously checks the source service for new records and processes them.
+
+## Simple Understanding
+
+For some services, AWS services themselves directly trigger Lambda (like S3 or SNS).
+
+But services like:
+
+- SQS
+- Kinesis
+- DynamoDB Streams
+- Kafka
+
+do not directly push events to Lambda.
+
+
+### 👉 Instead, Lambda creates an Event Source Mapping that:
+
+- Polls the service
+- Reads records/messages
+- Sends batches to Lambda
+
+## How It Works
+
+Flow:
+
+- SQS / Stream → Event Source Mapping → Lambda
+
+
+### Services That Work with Event Source Mapping
+- Queue-Based
+  - Amazon SQS
+
+- Stream-Based
+  - DynamoDB Streams
+  - Kinesis Data Streams
+  - Amazon MSK (Managed Kafka)
+  - Self-managed Apache Kafka
+
+
+  # Real-Life Example (SQS + Lambda)
+
+## Scenario
+
+E-commerce website:
+- Orders are placed
+- Orders go into SQS queue
+- Lambda processes orders asynchronously
+
+
+### Flow
+- Application sends order message to SQS
+- Lambda Event Source Mapping polls queue
+- Lambda receives batch of messages
+- Processes orders
+
+
+## Why Use Event Source Mapping?
+- Automatic polling
+- Scalable processing
+- Batch processing support
+- Retry handling
+- Decoupled architecture
+
+
+# Important Features
+## 1. Batch Processing
+
+Lambda can process multiple records together.
+
+Example
+
+```bash
+Batch Size = 10
+```
+
+👉 Lambda receives 10 messages in one invocation
+
+## 2. Scaling
+
+Lambda automatically scales based on:
+
+- Queue size
+- Stream throughpu
+
+## 3. Retry Behavior
+- For SQS:
+  - Failed messages return to queue
+  - Retry depends on visibility timeout
+- For Streams:
+  - Lambda retries until records expire or succeed
+
+## 4. Checkpointing (Streams)
+
+For Kinesis/DynamoDB Streams:
+- Lambda tracks last processed record
+- Prevents data loss
+
+
+## Important Difference
+
+| Direct Trigger       | Event Source Mapping  |
+| -------------------- | --------------------- |
+| Service pushes event | Lambda polls service  |
+| Example: S3, SNS     | Example: SQS, Kinesis |
+
+
+## Execution Role Requirement
+
+Lambda execution role needs permissions like:
+- sqs:ReceiveMessage
+- kinesis:GetRecords
+- dynamodb:GetRecords
+
+
+
+# AWS Lambda Event Object & Context Object
+
+# 1. Event Object
+
+Definition
+
+The event object contains the input data sent to the Lambda function by the triggering source.
+
+It is the first parameter passed to the Lambda handler
+
+Syntax (Node.js)
+
+```js
+exports.handler = async (event, context) => {
+    
+};
+```
+
+Here:
+
+- ```event``` → Input/request data
+- ```context```  → Runtime/execution information
+
+
+## How Event Object Works
+
+The structure of the event object depends on:
+- Which AWS service triggered Lambda
+- What data that service sends
+
+## Common Event Sources
+
+| Service          | Event Data Contains     |
+| ---------------- | ----------------------- |
+| API Gateway      | HTTP request details    |
+| S3               | Bucket & file info      |
+| SQS              | Queue messages          |
+| SNS              | Notification message    |
+| EventBridge      | Event details           |
+| DynamoDB Streams | Database change records |
+
+
+Real-Life Example
+
+## Scenario
+
+User uploads:
+
+```js
+photo.jpg
+```
+
+to S3 bucket.
+
+S3 sends event data to Lambda.
+
+## Sample S3 Event Object
+
+```json
+{
+  "Records": [
+    {
+      "eventVersion": "2.1",
+      "eventSource": "aws:s3",
+      "awsRegion": "ap-south-1",
+      "eventTime": "2026-05-08T10:00:00.000Z",
+      "eventName": "ObjectCreated:Put",
+      "s3": {
+        "bucket": {
+          "name": "my-upload-bucket"
+        },
+        "object": {
+          "key": "photo.jpg",
+          "size": 2048
+        }
+      }
+    }
+  ]
+}
+```
+
+Important Fields
+
+| Field       | Meaning                        |
+| ----------- | ------------------------------ |
+| eventSource | Which service triggered Lambda |
+| eventTime   | When event happened            |
+| bucket.name | S3 bucket name                 |
+| object.key  | Uploaded file name             |
+| object.size | File size                      |
+
+
+## Why Event Object Is Useful
+
+It provides:
+- Input data
+- Request details
+- File info
+- Queue messages
+- Event metadata
+
+Without event object:
+❌ Lambda would not know what to process
+
+
+# 2. Context Object
+
+## Defination
+
+The context object contains information about the Lambda execution environment and runtime.
+
+It is automatically provided by AWS Lambda.
+
+Why Context Object Is Useful
+Used for:
+
+- Request tracking
+- Timeout handling
+- Monitoring
+- Logging
+- Debugging
+
+## Important Context Properties
+
+| Property                   | Meaning                  |
+| -------------------------- | ------------------------ |
+| functionName               | Lambda function name     |
+| functionVersion            | Current version          |
+| awsRequestId               | Unique invocation ID     |
+| memoryLimitInMB            | Allocated memory         |
+| getRemainingTimeInMillis() | Remaining execution time |
+| invokedFunctionArn         | Lambda ARN               |
+
+
+## Example Context Object
+
+```json
+{
+  "functionName": "imageProcessor",
+  "functionVersion": "$LATEST",
+  "memoryLimitInMB": "128",
+  "awsRequestId": "1234-abcd-5678",
+  "invokedFunctionArn": "arn:aws:lambda:ap-south-1:123456789:function:imageProcessor"
+}
+```
+
+## Event vs Context (Very Important)
+
+| Feature               | Event Object   | Context Object       |
+| --------------------- | -------------- | -------------------- |
+| Purpose               | Input data     | Runtime metadata     |
+| Comes From            | Trigger source | AWS Lambda           |
+| Used For              | Business logic | Monitoring/debugging |
+| Changes Every Request | Yes            | Yes                  |
