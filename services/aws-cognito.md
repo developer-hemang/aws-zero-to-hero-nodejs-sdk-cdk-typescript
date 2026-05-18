@@ -375,16 +375,92 @@ const response = await cognito.initiateAuth(params).promise();
 | Profile Management | Yes       |
 
 
-## Cognito Hosted UI vs Custom UI
+# Cognito User Pools – Lambda Triggers
+
+## What are Cognito Lambda Triggers?
+
+Cognito Lambda Triggers are AWS Lambda functions that execute automatically during different stages of the Cognito authentication lifecycle.
 
 
-| Feature | Hosted UI | Custom UI |
-|---|---|
-| Fast setup | ✅ | ❌ |
-| Full branding | ❌ | ✅ |
-| Full customization | ❌ | ✅ |
-| Development effort | Low | High |
-| Flexibility | Limited | Very high |
+### They allow you to:
+
+- Customize authentication flow
+- Validate users
+- Modify tokens
+- Send custom messages
+- Add business logic
+- Integrate with external systems
+
+
+### Why Lambda Triggers Are Used?
+
+Without triggers:
+
+Cognito only provides standard authentication.
+
+With triggers:
+
+You can customize behavior.
+
+Example:
+
+| Requirement               | Trigger Usage        |
+| ------------------------- | -------------------- |
+| Allow only company emails | Pre Sign-up          |
+| Add custom claims in JWT  | Pre Token Generation |
+| Send custom OTP email     | Custom Message       |
+| Save login history        | Post Authentication  |
+| Migrate old users         | User Migration       |
+
+
+Real-Life Example
+
+Suppose company policy says:
+
+```js
+Only @company.com emails allowed
+```
+
+During signup:
+- Cognito invokes Lambda
+- Lambda validates email domain
+- Signup allowed or rejected
+
+
+## Complete Cognito Trigger Flow
+
+```text
+User Signup/Login
+        ↓
+Cognito Event Occurs
+        ↓
+Lambda Trigger Executes
+        ↓
+Custom Logic Runs
+        ↓
+Cognito Continues Flow
+```
+
+
+# Full List of Cognito Triggers
+
+| Trigger               | Purpose                       |
+| --------------------- | ----------------------------- |
+| Pre Sign-up           | Validate before signup        |
+| Custom Message        | Customize emails/SMS          |
+| Post Confirmation     | After user confirms account   |
+| Pre Authentication    | Before login                  |
+| Post Authentication   | After successful login        |
+| Define Auth Challenge | Custom auth flow              |
+| Create Auth Challenge | Create challenge/OTP          |
+| Verify Auth Challenge | Validate challenge            |
+| Pre Token Generation  | Modify JWT token              |
+| User Migration        | Migrate users from old system |
+| Custom Sender         | Custom email/SMS providers    |
+
+
+
+
 
 
 # 2. Cognito Identity Pool
